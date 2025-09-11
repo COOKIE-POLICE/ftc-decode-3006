@@ -8,10 +8,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.loggers.ImuLogger;
 import org.firstinspires.ftc.teamcode.loggers.BatteryLogger;
 import org.firstinspires.ftc.teamcode.loggers.GroupLogger;
 import org.firstinspires.ftc.teamcode.correctors.BalanceCorrector;
-import java.util.Map;
 
 @TeleOp(name="TeleOp3006", group="TeleOps")
 public class TeleOp3006 extends OpMode {
@@ -22,6 +22,7 @@ public class TeleOp3006 extends OpMode {
     private Motor backRightMotor;
     private GroupLogger groupLogger;
     private BatteryLogger batteryLogger;
+    private ImuLogger imuLogger;
     private GamepadEx mainGamepad;
     private BalanceCorrector balanceCorrector;
     private IMU imu;
@@ -49,7 +50,9 @@ public class TeleOp3006 extends OpMode {
         // <editor-fold desc="Gamepad and Loggers">
         mainGamepad = new GamepadEx(gamepad1);
         batteryLogger = new BatteryLogger(hardwareMap, telemetry);
-        groupLogger = new GroupLogger(batteryLogger);
+        imuLogger = new ImuLogger(imu, telemetry);
+        groupLogger = new GroupLogger(batteryLogger, imuLogger);
+
         balanceCorrector = new BalanceCorrector();
         // </editor-fold>
 
@@ -63,22 +66,9 @@ public class TeleOp3006 extends OpMode {
         double robotHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
         double robotPitchDegrees = imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES);
         double robotRollDegrees = imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES);
-        Map<String, Double> inputs;
-
-        if (balanceCorrector != null) {
-            inputs = balanceCorrector.correct(
-                    mainGamepad.getLeftY(),
-                    mainGamepad.getLeftX(),
-                    mainGamepad.getRightX(),
-                    robotPitchDegrees,
-                    robotRollDegrees
-            );
-        } else {
-            inputs = Map.of("forward", 0.0, "strafe", 0.0, "turn", 0.0);
-        }
-        double forward = inputs.getOrDefault("forward", 0.0);
-        double strafe = inputs.getOrDefault("strafe", 0.0);
-        double turn = inputs.getOrDefault("turn", 0.0);
+        double strafe = balanceCorrector.correctStrafe(mainGamepad.getLeftX(), robotRollDegrees);
+        double forward = balanceCorrector.correctForward(mainGamepad.getLeftY(), robotPitchDegrees);
+        double turn = mainGamepad.getRightX();
 
         if (!FIELD_CENTRIC_MODE) {
             drivetrain.driveRobotCentric(strafe, forward, turn);
