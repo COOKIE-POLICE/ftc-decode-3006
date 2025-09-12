@@ -53,7 +53,7 @@ public class TeleOp3006 extends OpMode {
         imuLogger = new ImuLogger(imu, telemetry);
         groupLogger = new GroupLogger(batteryLogger, imuLogger);
 
-        balanceCorrector = new BalanceCorrector();
+        balanceCorrector = new BalanceCorrector(imu);
         // </editor-fold>
 
         telemetry.addData("Status", "Initialized");
@@ -64,10 +64,8 @@ public class TeleOp3006 extends OpMode {
     public void loop() {
         mainGamepad.readButtons();
         double robotHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
-        double robotPitchDegrees = imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES);
-        double robotRollDegrees = imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES);
-        double strafe = balanceCorrector.correctStrafe(mainGamepad.getLeftX(), robotRollDegrees);
-        double forward = balanceCorrector.correctForward(mainGamepad.getLeftY(), robotPitchDegrees);
+        double strafe = balanceCorrector.correctStrafe(mainGamepad.getLeftX());
+        double forward = balanceCorrector.correctForward(mainGamepad.getLeftY());
         double turn = mainGamepad.getRightX();
 
         if (!FIELD_CENTRIC_MODE) {

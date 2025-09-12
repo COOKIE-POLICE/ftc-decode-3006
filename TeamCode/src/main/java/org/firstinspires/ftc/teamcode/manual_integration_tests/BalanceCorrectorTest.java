@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.correctors.BalanceCorrector;
 import org.firstinspires.ftc.teamcode.loggers.BatteryLogger;
 import org.firstinspires.ftc.teamcode.loggers.GroupLogger;
@@ -55,7 +54,7 @@ public class BalanceCorrectorTest extends OpMode {
         RevHubOrientationOnRobot orientationOnRobot = new RevHubOrientationOnRobot(logoDirection, usbDirection);
         imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-        balanceCorrector = new BalanceCorrector();
+        balanceCorrector = new BalanceCorrector(imu);
 
         batteryLogger = new BatteryLogger(hardwareMap, telemetry);
         imuLogger = new ImuLogger(imu, telemetry);
@@ -64,11 +63,9 @@ public class BalanceCorrectorTest extends OpMode {
 
     @Override
     public void loop() {
-        double robotPitchDegrees = imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES);
-        double robotRollDegrees = imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES);
 
-        double strafe = balanceCorrector.correctStrafe(0, robotRollDegrees);
-        double forward = balanceCorrector.correctForward(0, robotPitchDegrees);
+        double strafe = balanceCorrector.correctStrafe(0);
+        double forward = balanceCorrector.correctForward(0);
         double step = 0.001;
 
         // <editor-fold desc="PID Tuning">

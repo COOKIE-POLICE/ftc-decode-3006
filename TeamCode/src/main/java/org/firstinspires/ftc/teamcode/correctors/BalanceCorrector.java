@@ -1,13 +1,17 @@
 package org.firstinspires.ftc.teamcode.correctors;
 
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class BalanceCorrector {
     private final PIDController pitchController;
     private final PIDController rollController;
-
-    public BalanceCorrector(double pitchKP, double pitchKI, double pitchKD,
+    private final IMU imu;
+    public BalanceCorrector(IMU imu, double pitchKP, double pitchKI, double pitchKD,
                             double rollKP, double rollKI, double rollKD) {
+        this.imu = imu;
         this.pitchController = new PIDController(pitchKP, pitchKI, pitchKD);
         this.rollController = new PIDController(rollKP, rollKI, rollKD);
         this.pitchController.setSetPoint(0);
@@ -16,8 +20,8 @@ public class BalanceCorrector {
         this.rollController.setTolerance(2.0);
     }
 
-    public BalanceCorrector() {
-        this(0.01, 0, 0.001, 0.01, 0, 0.001);
+    public BalanceCorrector(IMU imu) {
+        this(imu, 0.01, 0, 0.001, 0.01, 0, 0.001);
     }
     public double getPitchKP() { return pitchController.getP(); }
     public void setPitchKP(double kp) { pitchController.setP(kp); }
@@ -35,19 +39,19 @@ public class BalanceCorrector {
 
     public double getRollKD() { return rollController.getD(); }
     public void setRollKD(double kd) { rollController.setD(kd); }
-    public double correctForward(double forward, double currentPitchDegrees) {
+    public double correctForward(double forward) {
         if (pitchController.atSetPoint()) {
             return forward;
         }
-        double forwardCorrection = pitchController.calculate(currentPitchDegrees);
+        double forwardCorrection = pitchController.calculate(imu.getRobotYawPitchRollAngles().getPitch(AngleUnit.DEGREES));
         return forward + forwardCorrection;
     }
 
-    public double correctStrafe(double strafe, double currentRollDegrees) {
+    public double correctStrafe(double strafe) {
         if (rollController.atSetPoint()) {
             return strafe;
         }
-        double strafeCorrection = rollController.calculate(currentRollDegrees);
+        double strafeCorrection = rollController.calculate(imu.getRobotYawPitchRollAngles().getRoll(AngleUnit.DEGREES));
         return strafe + strafeCorrection;
     }
 }
