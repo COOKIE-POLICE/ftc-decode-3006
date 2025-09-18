@@ -1,3 +1,3 @@
 package org.firstinspires.ftc.teamcode.constants;
 
-public enum Color {PURPLE, GREEN, UNKNOWN}
+public enum BallColor {PURPLE, GREEN, UNKNOWN}
