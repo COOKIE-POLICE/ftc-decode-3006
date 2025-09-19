@@ -78,3 +78,5 @@ public class TeleOp3006 extends OpMode {
         telemetry.update();
     }
 }
+// https://visualizer.pedropathing.com/
+// https://docs.revrobotics.com/rev-crossover-products/blinkin/duo, look in the onbot java example

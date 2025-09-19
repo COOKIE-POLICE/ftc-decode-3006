@@ -1,65 +1,51 @@
 package org.firstinspires.ftc.teamcode.mechanisms;
 
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.colorsensor.ColorSensorColors;
+import org.firstinspires.ftc.teamcode.colorsensor.ColorSensorEx;
 import org.firstinspires.ftc.teamcode.constants.BallColor;
 
 public class BallSortMechanism {
 
-    private final BallColorDetector colorDetector;
+    private final ColorSensorEx colorSensor;
     private BallQueue ballQueue;
     private final ElapsedTime unknownColorTimer;
-    private boolean isTimerRunning;
     private static final double UNKNOWN_COLOR_TIMEOUT = 2.0;
 
-    public BallSortMechanism(NormalizedColorSensor colorSensor, BallQueue ballQueue) {
+    public BallSortMechanism(HardwareMap hardwareMap, BallQueue ballQueue) {
         this.ballQueue = ballQueue;
-        this.colorDetector = new BallColorDetector(colorSensor);
+        this.colorSensor = new ColorSensorEx(hardwareMap, "color_sensor");
         this.unknownColorTimer = new ElapsedTime();
-        this.isTimerRunning = false;
     }
 
     public void setBallQueue(BallQueue ballQueue) {
         this.ballQueue = ballQueue;
     }
 
-    public BallColor detectColor() {
-        return colorDetector.detectColor();
-    }
-
     public void update() {
-        BallColor detectedColor = detectColor();
-
-        if (detectedColor == ballQueue.getAllowedColor()) {
+        if (colorSensor.getColor(ColorSensorColors.GREEN) && ballQueue.getAllowedColor() == BallColor.GREEN) {
             ballQueue.collectFirstBall();
-            resetUnknownColorTimer();
+            unknownColorTimer.reset();
+        }
 
-        } else if (detectedColor == BallColor.UNKNOWN) {
-            if (!isTimerRunning) {
-                startUnknownColorTimer();
-            }
+        else if (colorSensor.getColor(ColorSensorColors.PURPLE) && ballQueue.getAllowedColor() == BallColor.PURPLE) {
+            ballQueue.collectFirstBall();
+            unknownColorTimer.reset();
+        }
 
-            if (unknownColorTimer.seconds() >= UNKNOWN_COLOR_TIMEOUT) {
-                spitOutBall();
-                resetUnknownColorTimer();
-            }
-
-        } else {
+        // Check for known but wrong color
+        else {
             spitOutBall();
-            resetUnknownColorTimer();
+            unknownColorTimer.reset();
+        }
+        if (unknownColorTimer.seconds() >= UNKNOWN_COLOR_TIMEOUT) {
+            spitOutBall();
+            unknownColorTimer.reset();
         }
     }
 
-    private void startUnknownColorTimer() {
-        unknownColorTimer.reset();
-        isTimerRunning = true;
-    }
-
-    private void resetUnknownColorTimer() {
-        isTimerRunning = false;
-        unknownColorTimer.reset();
-    }
     private void spitOutBall() {
         // TODO: Add actual implementation for ball ejection
     }
