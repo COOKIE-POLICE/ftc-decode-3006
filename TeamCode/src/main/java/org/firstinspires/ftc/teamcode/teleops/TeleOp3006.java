@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.HardwareMapConfiguration;
 import org.firstinspires.ftc.teamcode.loggers.ImuLogger;
 import org.firstinspires.ftc.teamcode.loggers.BatteryLogger;
 import org.firstinspires.ftc.teamcode.loggers.GroupLogger;
@@ -16,10 +17,10 @@ import org.firstinspires.ftc.teamcode.correctors.BalanceCorrector;
 @TeleOp(name="TeleOp3006", group="TeleOps")
 public class TeleOp3006 extends OpMode {
     private MecanumDrive drivetrain;
-    private Motor frontLeftMotor;
-    private Motor frontRightMotor;
-    private Motor backLeftMotor;
-    private Motor backRightMotor;
+    private Motor leftFrontMotor;
+    private Motor rightFrontMotor;
+    private Motor leftBackMotor;
+    private Motor rightBackMotor;
     private GroupLogger groupLogger;
     private BatteryLogger batteryLogger;
     private ImuLogger imuLogger;
@@ -32,11 +33,11 @@ public class TeleOp3006 extends OpMode {
     @Override
     public void init() {
         // <editor-fold desc="Motors">
-        frontLeftMotor = new Motor(hardwareMap, "frontLeftMotor");
-        frontRightMotor = new Motor(hardwareMap, "frontRightMotor");
-        backLeftMotor = new Motor(hardwareMap, "backLeftMotor");
-        backRightMotor = new Motor(hardwareMap, "backRightMotor");
-        drivetrain = new MecanumDrive(frontLeftMotor, frontRightMotor, backLeftMotor, backRightMotor);
+        leftFrontMotor = new Motor(hardwareMap, HardwareMapConfiguration.LEFT_FRONT_MOTOR);
+        rightFrontMotor = new Motor(hardwareMap, HardwareMapConfiguration.RIGHT_FRONT_MOTOR);
+        leftBackMotor = new Motor(hardwareMap, HardwareMapConfiguration.LEFT_BACK_MOTOR);
+        rightBackMotor = new Motor(hardwareMap, HardwareMapConfiguration.RIGHT_BACK_MOTOR);
+        drivetrain = new MecanumDrive(leftFrontMotor, rightFrontMotor, leftBackMotor, rightBackMotor);
         // </editor-fold>
 
         // <editor-fold desc="IMU">
